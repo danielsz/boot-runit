@@ -28,4 +28,6 @@
     {:deps (deps model)
      :repos (repos model)
      :project-symbol (symbol (.getGroupId model) (.getArtifactId model))
+     :group (.getGroupId model)
+     :artifact (.getArtifactId model)
      :version (.getVersion model)}))

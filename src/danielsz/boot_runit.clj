@@ -37,8 +37,6 @@
   (.mkdir (io/file (str/join "/" [path "logs"]))))
 
 (defn write-app [app-path env]
-  (debug "app path: " app-path)
-  (debug "env: " env)
   (write-env app-path env)
   (write-logs-dir app-path))
 
@@ -67,15 +65,15 @@
   (-> (str/join "/" els)
       (clojure.string/replace #"(?<!http:)//" "/")))
 
-(defn compute-paths [tmp options]
-  (let [app-root (or (:app-root options) "/opt")
-        service-root (or (:service-root options) "/etc/sv")
-        group (:group options)
-        name (:name options)
-        app [app-root (or group "") name]
+(defn compute-paths [tmp options pom]
+  (let [app-root (or (:app-root options) "opt")
+        service-root (or (:service-root options) "etc/sv")
+        artifact (:artifact pom)
+        group (:group pom)
+        app [app-root (or group "") artifact]
         service-name (if group
-                       (str group "-" name)
-                        name)
+                       (str group "-" artifact)
+                       artifact)
         service [service-root service-name]
         runit ["/etc/service" service-name]
         target-path (conj (seq app) tmp)
@@ -90,35 +88,33 @@
                (format "sudo mkdir -p %s" (:app paths))
                (format "sudo chown %s:%s %s"  user user (:app paths))
                (format "cp %s %s" jar-name (:app paths))
-               (format "cp -R %s /" (str (:tmp paths) "/" (:app-root paths)))
-               (format "sudo cp -R %s /etc" (str (:tmp paths) "/" (:service-root paths)))
+               (format "cp -R %s /" (:app-root paths))
+               (format "sudo cp -R %s /etc" (:service-root paths))
                (format "sudo ln -s %s %s" (:service paths) (:runit paths))]]
         (write-executable lines (str (:tmp paths) "/commit.sh"))))
 
 (core/deftask runit
-  "Provides integration with runit, a UNIX init scheme with service supervision."
+  "Provides integration with runit, a UNIX init scheme with service supervision. This task makes the assumption that you're deploying an uberjar."
   [e env FOO=BAR {kw edn} "The environment map"
-   a app-root APP str "Where user applications are installed, defaults to /opt"
-   s service-root SRV str "Where runit services are installed, defaults to /etc/sv"
-   n name NAME str "Name of application"
-   g group GROUP str "Group segment"]
-  (let [tmp (core/temp-dir!)
-        paths (compute-paths tmp *opts*)]
-    (util/info (str "opts: " *opts* "\npaths: " paths "\n"))
+   a app-root APP str "Where user applications are installed, defaults to opt"
+   s service-root SRV str "Where runit services are installed, defaults to etc/sv"]
+  (let [tmp (core/temp-dir!)]
     (core/with-pre-wrap fileset
       (let [out-files (core/output-files fileset)
-            jars  (pr-str (core/by-ext [".jar"] out-files))
-            pom  (core/by-name ["pom.xml"] out-files)
-            jar-name (str/join "-" [group name "standalone.jar"])]
-        ; check if jars (a lazy sequence) contains the jar file of the project  if not  util/fail
+            pom  (core/by-name ["pom.xml"] out-files)]
         (if (seq pom)
-          (do (util/info (str "jars: " jars "\nxmls: " (pr-str (first pom)) "\n"))
-              (util/info (str (:project-symbol (extract-from-pom (io/file (:dir (first pom)) (:path (first pom))))))))
-          (util/fail "Sorry. This task expects to find a pom.xml (which it didn't"))
-        (write-app (:target-path paths) env)
-        (spy :debug (write-service (:app paths) (:service-path paths) jar-name))
-        (write-commit paths jar-name)
-        (util/info "All done. You can now run commit.sh in target directory."))
+          (do 
+            (let [model (extract-from-pom (io/file (:dir (first pom)) (:path (first pom))))
+                  paths (compute-paths tmp *opts* model)
+                  jar-name (str (:artifact model) "-" (:version model) ".jar")]
+              (util/info (str  "Preparing deployment script for " jar-name ".\n"))
+              (write-app (:target-path paths) env)
+              (write-service (:app paths) (:service-path paths) jar-name)
+              (write-commit paths jar-name)
+              (util/info "All done. You can now run commit.sh in target directory.")))
+          (do
+            (util/fail "Sorry. This task expects to find a pom.xml (which it didn't).\n")
+            (*usage*))))
       (-> fileset
           (core/add-resource tmp)
           core/commit!))))
