@@ -1,7 +1,9 @@
 (set-env!
   :source-paths #{"src"}
   :dependencies '[[boot/core "2.0.0-rc14" :scope "provided"]
-                  [adzerk/bootlaces "0.1.11" :scope "test"]])
+                  [adzerk/bootlaces "0.1.11" :scope "test"]
+                  [me.raynes/fs "1.4.6"]
+                  [com.taoensso/timbre "3.4.0"]])
 
 (require '[adzerk.bootlaces :refer :all])
 
