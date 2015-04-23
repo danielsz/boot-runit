@@ -88,8 +88,8 @@
                (format "sudo mkdir -p %s" (:app paths))
                (format "sudo chown %s:%s %s"  user user (:app paths))
                (format "cp %s %s" jar-name (:app paths))
-               (format "cp -R %s /" (:app-root paths))
-               (format "sudo cp -R %s /etc" (:service-root paths))
+               (format "cp -R %s /" (str "." (:app-root paths)))
+               (format "sudo cp -R %s /etc" (str "." (:service-root paths)))
                (format "sudo ln -s %s %s" (:service paths) (:runit paths))]]
         (write-executable lines (str (:tmp paths) "/commit.sh"))))
 
