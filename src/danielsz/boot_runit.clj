@@ -66,8 +66,8 @@
       (clojure.string/replace #"(?<!http:)//" "/")))
 
 (defn compute-paths [tmp options pom]
-  (let [app-root (or (:app-root options) "opt")
-        service-root (or (:service-root options) "etc/sv")
+  (let [app-root (or (:app-root options) "/opt")
+        service-root (or (:service-root options) "/etc/sv")
         artifact (:artifact pom)
         group (:group pom)
         app [app-root (or group "") artifact]
@@ -96,8 +96,8 @@
 (core/deftask runit
   "Provides integration with runit, a UNIX init scheme with service supervision. This task makes the assumption that you're deploying an uberjar."
   [e env FOO=BAR {kw edn} "The environment map"
-   a app-root APP str "Where user applications are installed, defaults to opt"
-   s service-root SRV str "Where runit services are installed, defaults to etc/sv"]
+   a app-root APP str "Where user applications are installed, defaults to /opt"
+   s service-root SRV str "Where runit services are installed, defaults to /etc/sv"]
   (let [tmp (core/temp-dir!)]
     (core/with-pre-wrap fileset
       (let [out-files (core/output-files fileset)
