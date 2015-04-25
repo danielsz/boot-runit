@@ -6,9 +6,13 @@ If you’ve never used ~runit~ before, you may want to refer to Kevin Chard’s 
 
 In ~build.boot~:
 #+BEGIN_SRC clojure
-(set-env! :dependencies ‘[[danielsz/boot-runit "0.0.3"]])
+(set-env! :dependencies ‘[[danielsz/boot-runit "X.X.X"]])
 (require '[danielsz.boot-runit :refer [runit]])
 #+END_SRC
+
+Where the current version is:
+
+[[http://clojars.org/danielsz/boot-runit/latest-version.svg]] 
 
 ** Usage
 
