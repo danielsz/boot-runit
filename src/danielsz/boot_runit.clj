@@ -24,7 +24,7 @@
     (with-open [wrtr (io/writer path)]
       (doseq [line lines]
         (.write wrtr (str line "\n"))))
-    (fs/chmod "+x" path))
+    (fs/chmod "+x" path)) ; fileset is immutable in boot, has no effect
 
 (defn write-env [path env]
   (doseq [[key value] env]
@@ -38,7 +38,9 @@
 
 (defn write-app [app-path env]
   (write-env app-path env)
-  (write-logs-dir app-path))
+  ;; fileset in boot, empty dir has no effect
+  ;(write-logs-dir app-path)
+  )
 
 (defn write-run-service [user app-path service-path jar-filename]
   (let [lines ["#!/bin/sh -e"
@@ -85,12 +87,13 @@
 (defn write-commit [paths jar-name]
   (let [user (System/getProperty "user.name")
         lines ["#!/bin/sh -e"
-               (format "sudo mkdir -p %s" (:app paths))
+               (format "sudo mkdir -p %s" (str (:app paths) "/logs"))
                (format "sudo chown %s:%s %s"  user user (:app paths))
                (format "cp %s %s" jar-name (:app paths))
                (format "cp -R %s /" (str "." (:app-root paths)))
                (format "sudo cp -R %s /etc" (str "." (:service-root paths)))
-               (format "sudo ln -s %s %s" (:service paths) (:runit paths))]]
+               (format "sudo ln -s %s %s" (:service paths) (:runit paths))
+               "find . -name run | xargs chmod u+x"]] ;https://github.com/boot-clj/boot/pull/196
         (write-executable lines (str (:tmp paths) "/commit.sh"))))
 
 (core/deftask runit
