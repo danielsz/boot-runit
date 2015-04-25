@@ -1,6 +1,6 @@
 * boot-runit
 
-A boot task that will provision your Clojure program to be managed with the [[http://smarden.org/runit/][runit]] supervisor, typically on a production server.
+A boot task that will provision your Clojure program with the [[http://smarden.org/runit/][runit]] supervisor, typically on a production server.
 If you’ve never used ~runit~ before, you may want to refer to Kevin Chard’s excellent [[http://kchard.github.io/runit-quickstart/][quickstart]]. I have curated some more links in a blog [[http://danielsz.github.io/2014/12/06/lein-runit/][post]]. Once you understand how things work, you may want to come back and use *boot-runit* to automate deployment of Clojure programs.
 ** Installation
 
