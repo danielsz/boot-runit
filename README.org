@@ -31,7 +31,7 @@ Now you can deploy it with runit:
 (deftask prod
   []
   (comp
-  (build)
+   (build)
    (runit :env {:http-port 8023
                 :redis-instance "127.0.0.1"})))
 #+END_SRC
