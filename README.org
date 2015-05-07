@@ -46,8 +46,7 @@ After running ~boot prod~, you will have a shell script in the ~target~ director
 
 #+BEGIN_SRC sh
 $ cd target
-$ chmod u+x commit.sh
-$ ./commit.sh
+$ sh commit.sh
 #+END_SRC
 
 The shell script will move everything into place with the right permissions.
