@@ -17,7 +17,3 @@
       :scm {:name "git"
             :url "https://github.com/danielsz/boot-runit"}})
 
-(deftask build
-  "Build jar and install to local repo."
-  []
-  (comp (aot) (pom) (jar) (install)))
