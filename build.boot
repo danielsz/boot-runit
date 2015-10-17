@@ -1,14 +1,13 @@
 (set-env!
   :source-paths #{"src"}
-  :dependencies '[[boot/core "2.0.0-rc14" :scope "provided"]
-                  [adzerk/bootlaces "0.1.11" :scope "test"]
+  :dependencies '[[adzerk/bootlaces "0.1.12" :scope "test"]
                   [me.raynes/fs "1.4.6"]
-                  [com.taoensso/timbre "3.4.0"]
+                  [com.taoensso/timbre "4.1.4"]
                   [org.apache.maven/maven-model "3.2.5"]])
 
 (require '[adzerk.bootlaces :refer :all])
 
-(def +version+ "0.0.3")
+(def +version+ "0.0.4")
 (bootlaces! +version+)
 
 (task-options!
