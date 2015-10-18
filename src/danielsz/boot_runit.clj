@@ -101,7 +101,7 @@
   [e env FOO=BAR {kw edn} "The environment map"
    a app-root APP str "Where user applications are installed, defaults to /opt"
    s service-root SRV str "Where runit services are installed, defaults to /etc/sv"]
-  (let [tmp (core/temp-dir!)]
+  (let [tmp (core/tmp-dir!)]
     (core/with-pre-wrap fileset
       (let [out-files (core/output-files fileset)
             pom  (core/by-name ["pom.xml"] out-files)]
