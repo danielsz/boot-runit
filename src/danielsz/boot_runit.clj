@@ -130,7 +130,7 @@
               (write-commit paths jar-name)
               (util/info "All done. You can now run commit.sh in target directory.\n")
               (util/info "You may want to test the jar manually on the command line.\n")
-              (util/info (try-it-out (:app paths) jar-name env))))
+              (util/info (str (try-it-out (:app paths) jar-name env) "\n"))))
           (do
             (util/fail "Sorry. This task expects to find a pom.xml (which it didn't).\n")
             (*usage*))))
