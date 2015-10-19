@@ -72,16 +72,16 @@
         service-root (or (:service-root options) "/etc/sv")
         artifact (:artifact pom)
         group (:group pom)
-        app [app-root (or group "") artifact]
-        service-name (if group
-                       (str group "-" artifact)
-                       artifact)
+        app [app-root (if (= group artifact) "" group) artifact]
+        service-name (if (= group artifact)
+                       artifact
+                       (str group "-" artifact))
         service [service-root service-name]
         runit ["/etc/service" service-name]
         target-path (conj (seq app) tmp)
         service-path (conj (seq service) tmp)
         paths (zipmap [:app :service :target-path :service-path :runit]
-            (map assemble-path [app service target-path service-path runit]))]
+                      (map assemble-path [app service target-path service-path runit]))]
     (assoc paths :app-root app-root :service-root service-root :tmp tmp)))
 
 (defn write-commit [paths jar-name]
