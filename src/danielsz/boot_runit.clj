@@ -103,7 +103,7 @@
         lines ["#!/bin/sh -e"
                "find ./etc -name run | xargs chmod u+x" ;https://github.com/boot-clj/boot/pull/196
                (format "sudo mkdir -p %s" (str (:app paths) "/logs"))
-               (format "sudo chown %s:%s %s"  user user (:app paths))
+               (format "sudo chown -R %s:%s %s"  user user (:app paths))
                (format "cp %s %s" jar-name (:app paths))
                (format "cp -R %s /" (str "." (:app-root paths)))
                (format "sudo cp -R %s /etc" (str "." (:service-root paths)))
