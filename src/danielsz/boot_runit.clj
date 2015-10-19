@@ -31,7 +31,7 @@
 
 (defn try-it-out [app-path jar-file env]
   (let [env-switches (str/join " " (map str/join (zipmap (to-java-properties env) (vals env))))]
-    (str "java -jar -server " app-path jar-file  " " env-switches)))
+    (str "java -jar -server " app-path "/" jar-file " " env-switches)))
 
 (defn write-executable [lines path]
   (io/make-parents path)
