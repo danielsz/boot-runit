@@ -31,7 +31,7 @@
 
 (defn try-it-out [app-path jar-file env]
   (let [env-switches (str/join " " (map str/join (zipmap (to-java-properties env) (vals env))))]
-    (str "java -jar -server " app-path "/" jar-file " " env-switches)))
+    (str "java -jar -server " env-switches " " app-path "/" jar-file)))
 
 (defn write-executable [lines path]
   (io/make-parents path)
@@ -128,9 +128,9 @@
               (write-app (:target-path paths) env)
               (write-service (:app paths) (:service-path paths) jar-name)
               (write-commit paths jar-name)
+              (util/info "All done. You can now run commit.sh in target directory.\n")
               (util/info "You may want to test the jar manually on the command line.\n")
-              (util/info (str (try-it-out (:app paths) jar-name env) "\n"))
-              (util/info "All done. You can now run commit.sh in target directory.")))
+              (util/info (try-it-out (:app paths) jar-name env))))
           (do
             (util/fail "Sorry. This task expects to find a pom.xml (which it didn't).\n")
             (*usage*))))
