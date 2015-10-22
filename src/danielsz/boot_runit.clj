@@ -107,14 +107,17 @@
                (format "cp %s %s" jar-name (:app paths))
                (format "cp -R %s /" (str "." (:app-root paths)))
                (format "sudo cp -R %s /etc" (str "." (:service-root paths)))
-               (format "sudo ln -sfn %s %s" (:service paths) (:runit paths))]] 
+               (format "sudo ln -sfn %s %s" (:service paths) (:runit paths))]
+        lines (if restart (conj lines (format "sudo sv restart %s" (:runit paths)))
+                  lines)] 
         (write-executable lines (str (:tmp paths) "/commit.sh"))))
 
 (core/deftask runit
   "Provides integration with runit, a UNIX init scheme with service supervision. This task makes the assumption that you're deploying an uberjar."
   [e env FOO=BAR {kw edn} "The environment map"
    a app-root APP str "Where user applications are installed, defaults to /opt"
-   s service-root SRV str "Where runit services are installed, defaults to /etc/sv"]
+   s service-root SRV str "Where runit services are installed, defaults to /etc/sv"
+   r restart bool "restart service"]
   (let [tmp (core/tmp-dir!)]
     (core/with-pre-wrap fileset
       (let [out-files (core/output-files fileset)
