@@ -98,7 +98,7 @@
                       (map assemble-path [app service target-path service-path runit]))]
     (assoc paths :app-root app-root :service-root service-root :tmp tmp)))
 
-(defn write-commit [paths jar-name restart]
+(defn write-commit [paths jar-name options]
   (let [user (System/getProperty "user.name")
         lines ["#!/bin/sh -e"
                "find ./etc -name run | xargs chmod u+x" ;https://github.com/boot-clj/boot/pull/196
@@ -108,7 +108,7 @@
                (format "cp -R %s /" (str "." (:app-root paths)))
                (format "sudo cp -R %s /etc" (str "." (:service-root paths)))
                (format "sudo ln -sfn %s %s" (:service paths) (:runit paths))]
-        lines (if restart (conj lines (format "sudo sv restart %s" (:runit paths)))
+        lines (if (:restart options) (conj lines (format "sudo sv restart %s" (:runit paths)))
                   lines)] 
         (write-executable lines (str (:tmp paths) "/commit.sh"))))
 
@@ -130,7 +130,7 @@
               (util/info (str  "Preparing deployment script for " jar-name ".\n"))
               (write-app (:target-path paths) env)
               (write-service (:app paths) (:service-path paths) jar-name)
-              (write-commit paths jar-name restart)
+              (write-commit paths jar-name *opts*)
               (util/info "All done. You can now run commit.sh in target directory.\n")
               (util/info "You may want to test the jar manually on the command line.\n")
               (util/info (str (try-it-out (:app paths) jar-name env) "\n"))))
