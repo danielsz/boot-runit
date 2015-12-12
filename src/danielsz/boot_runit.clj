@@ -73,9 +73,9 @@
         path (str service-path "/log/run")]
     (write-executable lines path)))
 
-(defn write-service [app-path service-path jar-name]
+(defn write-service [app-path service-path jar-name options]
   (let [user (System/getProperty "user.name")]
-    (write-run-service user app-path service-path jar-name)
+    (write-run-service user app-path service-path jar-name options)
     (write-run-log user app-path service-path)))
 
 (defn assemble-path [els]
