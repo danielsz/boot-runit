@@ -56,12 +56,13 @@
   ;(write-logs-dir app-path)
   )
 
-(defn write-run-service [user app-path service-path jar-filename]
-  (let [lines ["#!/bin/sh -e"
+(defn write-run-service [user app-path service-path jar-filename options]
+  (let [oom (str "-XX:+HeapDumpOnOutOfMemoryError -XX:OnOutOfMemoryError=\"kill -9 %p\" -XX:HeapDumpPath=" (System/getProperty "user.home"))
+        lines ["#!/bin/sh -e"
                (str "BASE_DIR=" app-path)
                (str "JAR=" jar-filename)
                "exec 2>&1"
-               (str "exec chpst -u " user " -e $BASE_DIR/env java -jar -server -XX:+HeapDumpOnOutOfMemoryError $BASE_DIR/$JAR")]
+               (str "exec chpst -u " user " -e $BASE_DIR/env java -jar -server " (when (:out-of-memory options) oom) " $BASE_DIR/$JAR")]
         path (str service-path "/run")]
     (write-executable lines path)))
 
@@ -109,7 +110,7 @@
                (format "sudo cp -R %s /etc" (str "." (:service-root paths)))
                (format "sudo ln -sfn %s %s" (:service paths) (:runit paths))]
         lines (if (:restart options) (conj lines (format "sudo sv restart %s" (:runit paths)))
-                  lines)] 
+                  lines)]
         (write-executable lines (str (:tmp paths) "/commit.sh"))))
 
 (core/deftask runit
@@ -117,6 +118,7 @@
   [e env FOO=BAR {kw edn} "The environment map"
    a app-root APP str "Where user applications are installed, defaults to /opt"
    s service-root SRV str "Where runit services are installed, defaults to /etc/sv"
+   o out-of-memory bool "best practices to recover from an OutOfMemory error"
    r restart bool "restart service"]
   (let [tmp (core/tmp-dir!)]
     (core/with-pre-wrap fileset
@@ -129,7 +131,7 @@
                   jar-name (str (:artifact model) "-" (:version model) ".jar")]
               (util/info (str  "Preparing deployment script for " jar-name ".\n"))
               (write-app (:target-path paths) env)
-              (write-service (:app paths) (:service-path paths) jar-name)
+              (write-service (:app paths) (:service-path paths) jar-name *opts*)
               (write-commit paths jar-name *opts*)
               (util/info "All done. You can now run commit.sh in target directory.\n")
               (util/info "You may want to test the jar manually on the command line.\n")
