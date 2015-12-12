@@ -61,7 +61,7 @@
                (str "BASE_DIR=" app-path)
                (str "JAR=" jar-filename)
                "exec 2>&1"
-               (str "exec chpst -u " user " -e $BASE_DIR/env java -jar -server $BASE_DIR/$JAR")]
+               (str "exec chpst -u " user " -e $BASE_DIR/env java -jar -server -XX:+HeapDumpOnOutOfMemoryError $BASE_DIR/$JAR")]
         path (str service-path "/run")]
     (write-executable lines path)))
 
