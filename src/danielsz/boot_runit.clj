@@ -119,11 +119,12 @@
    a app-root APP str "Where user applications are installed, defaults to /opt"
    s service-root SRV str "Where runit services are installed, defaults to /etc/sv"
    o out-of-memory bool "best practices to recover from an OutOfMemory error"
+   p project PRJ str "The project from the POM"
    r restart bool "restart service"]
   (let [tmp (core/tmp-dir!)]
     (core/with-pre-wrap fileset
       (let [out-files (core/output-files fileset)
-            pom  (core/by-name ["pom.xml"] out-files)]
+            pom  (core/by-re [(re-pattern (str project "/pom.xml"))] out-files)]
         (if (seq pom)
           (do 
             (let [model (extract-from-pom (io/file (:dir (first pom)) (:path (first pom))))
