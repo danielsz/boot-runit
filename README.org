@@ -53,13 +53,13 @@ The shell script will move everything into place with the right permissions.
 
 ** Functionality
 
-Type on the command line: 
+Type on the command line:
 
 #+BEGIN_SRC shell
 boot runit -h
 #+END_SRC
 
-Of particular interest is the ~ulimit~ option that will tune the process in which your application is launched. You pass in the arguments to the ulimit option as you would for the ulimit command, for example “-n 10000”, which means 10000 open files.  
+Of particular interest is the ~ulimit~ option that will tune the process in which your application is launched. You pass in the arguments to the ulimit option as you would for the ulimit command, for example ~-n 10000~, which would set the soft limit for opening files to 10000.  
 The ~out-of-memory~ option will result in a self-restarting application upon encountering out of memory errors.
  
 ** License
