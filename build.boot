@@ -8,7 +8,8 @@
  pom {:project 'danielsz/boot-runit
       :version "0.1.0-SNAPSHOT"
       :scm {:name "git"
-            :url "https://github.com/danielsz/boot-runit"}})
+            :url "https://github.com/danielsz/boot-runit"}}
+ push {:repo-map {:url "https://clojars.org/repo/"}})
 
 (require '[danielsz.boot-runit :refer [runit]])
 
@@ -35,4 +36,4 @@
   []
   (comp
    (build)
-   (push :repo "clojars")))
+   (push)))

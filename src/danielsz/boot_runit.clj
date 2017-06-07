@@ -55,14 +55,15 @@
 
 (defn write-run-service [user app-path service-path jar-filename options]
   (let [oom (str "-XX:+HeapDumpOnOutOfMemoryError -XX:OnOutOfMemoryError=\"kill -9 %p\" -XX:HeapDumpPath=" (System/getProperty "user.home"))
-        lines ["#!/bin/sh -e"
-               (str "BASE_DIR=" app-path)
-               (str "JAR=" jar-filename)
-               (when-some [cmds (:ulimit options)] (str "ulimit " cmds))
-               "exec 2>&1"
-               (str "exec chpst -u " user " -e $BASE_DIR/env java -jar -server " (when (:out-of-memory options) oom) " $BASE_DIR/$JAR")]
+        lines (->> ["#!/bin/sh -e"
+                    (str "BASE_DIR=" app-path)
+                    (str "JAR=" jar-filename)
+                    (when-some [cmds (:ulimit options)] (str "ulimit " cmds))
+                    "exec 2>&1"
+                    (str "exec chpst -u " user " -e $BASE_DIR/env java -jar -server " (when (:out-of-memory options) oom) " $BASE_DIR/$JAR")]
+                   (remove nil?))
         path (str service-path "/run")]
-    (write-executable (remove nil? lines) path)))
+    (write-executable lines path)))
 
 (defn write-run-log [user app-path service-path]
   (let [lines ["#!/bin/sh -e"
