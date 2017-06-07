@@ -7,11 +7,8 @@
    [boot.core       :as core]
    [boot.util       :as util]
    [boot.task.built-in :refer [pom]]
-   [me.raynes.fs :as fs]
-   [taoensso.timbre :as timbre])
+   [me.raynes.fs :as fs])
   (:import (org.apache.maven.model.io.xpp3 MavenXpp3Reader)))
-
-(timbre/refer-timbre)
 
 ;; utils
 
@@ -61,10 +58,11 @@
         lines ["#!/bin/sh -e"
                (str "BASE_DIR=" app-path)
                (str "JAR=" jar-filename)
+               (when-some [cmds (:ulimit options)] (str "ulimit " cmds))
                "exec 2>&1"
                (str "exec chpst -u " user " -e $BASE_DIR/env java -jar -server " (when (:out-of-memory options) oom) " $BASE_DIR/$JAR")]
         path (str service-path "/run")]
-    (write-executable lines path)))
+    (write-executable (remove nil? lines) path)))
 
 (defn write-run-log [user app-path service-path]
   (let [lines ["#!/bin/sh -e"
@@ -119,6 +117,7 @@
    a app-root APP str "Where user applications are installed, defaults to /opt"
    s service-root SRV str "Where runit services are installed, defaults to /etc/sv"
    o out-of-memory bool "best practices to recover from an OutOfMemory error"
+   u ulimit ULIMIT str "ulimit command to run before launching the application. Only provide the arguments, ex. -n 10000" 
    p project PRJ str "The project from the POM"
    r restart bool "restart service"]
   (let [tmp (core/tmp-dir!)]

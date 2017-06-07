@@ -1,9 +1,8 @@
 (set-env!
  :source-paths #{"src"}
  :resource-paths #{"src"}
- :dependencies '[[com.taoensso/timbre "4.1.4"]
-                  [me.raynes/fs "1.4.6"]
-                  [org.apache.maven/maven-model "3.2.5"]])
+ :dependencies '[[me.raynes/fs "1.4.6"]
+                 [org.apache.maven/maven-model "3.2.5"]])
 
 (task-options!
  pom {:project 'danielsz/boot-runit
@@ -11,11 +10,22 @@
       :scm {:name "git"
             :url "https://github.com/danielsz/boot-runit"}})
 
+(require '[danielsz.boot-runit :refer [runit]])
+
 (deftask dev
+  "Run a restartable system in the Repl"
   []
   (comp
-   (repl :server true)
-   (wait)))
+   (watch :verbose true)
+   (notify :visual true)
+   (repl :server true)))
+
+
+(deftask test-run
+  []
+  (comp (pom :project (symbol "zuby") :version "0.O.1")
+        (runit :restart true :out-of-memory true :project "zuby" :ulimit "-n 100000")
+        (target)))
 
 (deftask build
   []
