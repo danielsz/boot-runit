@@ -6,7 +6,7 @@
 
 (task-options!
  pom {:project 'danielsz/boot-runit
-      :version "0.1.0-SNAPSHOT"
+      :version "0.1.2-SNAPSHOT"
       :scm {:name "git"
             :url "https://github.com/danielsz/boot-runit"}}
  push {:repo-map {:url "https://clojars.org/repo/"}})
