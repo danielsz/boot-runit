@@ -18,17 +18,17 @@
       (.toUpperCase)
       (str/replace "-" "_")))
 
-(defn to-java-properties [env]
+(defn to-java-properties [keys]
   (let [transform #(-> %
                        name
                        (str/replace "-" ".")
                        (str "=")
                        (->> (str "-D")))]
-    (map transform (keys env))))
+    (map transform keys)))
 
 (defn try-it-out [app-path jar-file env]
-  (let [env-switches (str/join " " (map str/join (zipmap (to-java-properties env) (vals env))))]
-    (str "java -jar -server " env-switches " " app-path "/" jar-file)))
+  (let [env-switches (str/join " " (map str/join (zipmap (to-java-properties (keys env)) (map #(str "'" % "'") (vals env)))))]
+    (str "java -jar -server " env-switches " " jar-file)))
 
 (defn write-executable [lines path]
   (io/make-parents path)
@@ -112,6 +112,11 @@
                   lines)]
         (write-executable lines (str (:tmp paths) "/commit.sh"))))
 
+(defn write-test-run [paths jar-name env]
+  (let [lines ["#!/bin/sh -e"
+               (try-it-out (:app paths) jar-name env)]]
+    (write-executable lines (str (:tmp paths) "/prod-run.sh"))))
+
 (core/deftask runit
   "Provides integration with runit, a UNIX init scheme with service supervision. This task makes the assumption that you're deploying an uberjar."
   [e env FOO=BAR {kw edn} "The environment map"
@@ -136,8 +141,9 @@
               (write-service (:app paths) (:service-path paths) jar-name *opts*)
               (write-commit paths jar-name *opts*)
               (util/info "All done. You can now run commit.sh in target directory.\n")
-              (util/info "You may want to test the jar manually on the command line.\n")
-              (util/info (str (try-it-out (:app paths) jar-name env) "\n"))))
+              (util/info "Prior, you may want to test the jar manually on the command line.\n")
+              (util/info "In this case, run prod-run.sh in the target directory.\n")
+              (write-test-run paths jar-name env)))
           (do
             (util/fail "Sorry. This task expects to find a pom.xml (which it didn't).\n")
             (*usage*))))

@@ -6,7 +6,7 @@
 
 (task-options!
  pom {:project 'danielsz/boot-runit
-      :version "0.1.2-SNAPSHOT"
+      :version "0.1.2"
       :scm {:name "git"
             :url "https://github.com/danielsz/boot-runit"}}
  push {:repo-map {:url "https://clojars.org/repo/"}})
@@ -31,6 +31,10 @@
 (deftask build
   []
   (comp (pom) (jar) (install)))
+
+(deftask build-checkout
+  []
+  (comp (watch) (build)))
 
 (deftask push-release
   []
